@@ -1,0 +1,37 @@
+{
+  "name": "twitsh",
+  "version": "1.0.0",
+  "description": "X/Twitter data CLI with x402 micropayment handling",
+  "type": "module",
+  "bin": {
+    "twitsh": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "skill.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --target node20 --external better-sqlite3",
+    "prepare": "npm run build",
+    "dev": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@x402/core": "^2.6.0",
+    "@x402/evm": "^2.6.0",
+    "better-sqlite3": "^12.8.0",
+    "playwright": "^1.58.2",
+    "viem": "^2.46.0",
+    "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20",
+    "@types/yargs": "^17",
+    "tsup": "^8",
+    "tsx": "^4",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
