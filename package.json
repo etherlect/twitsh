@@ -1,6 +1,6 @@
 {
   "name": "twitsh",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "X/Twitter data CLI with x402 micropayment handling",
   "type": "module",
   "bin": {
@@ -30,6 +30,10 @@
     "tsup": "^8",
     "tsx": "^4",
     "typescript": "^5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/etherlect/twitsh.git"
   },
   "engines": {
     "node": ">=20"
