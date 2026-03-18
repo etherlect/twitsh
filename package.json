@@ -1,6 +1,6 @@
 {
   "name": "twitsh",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "X/Twitter data CLI with x402 micropayment handling",
   "type": "module",
   "bin": {
