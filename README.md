@@ -1,6 +1,8 @@
 # twitsh
 
-CLI tool to fetch Twitter/X data via x402 micropayments. Pay per request in USDC on Base — no API keys, no monthly subscriptions.
+CLI tool for the [twit.sh](https://twit.sh) X/Twitter API — access Twitter/X data via x402 micropayments. Pay per request in USDC on Base — no API keys, no monthly subscriptions.
+
+All available endpoints are documented at **[twit.sh](https://twit.sh)**.
 
 ## Quick start
 
