@@ -1,6 +1,6 @@
 {
   "name": "twitsh",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "X/Twitter data CLI with x402 micropayment handling",
   "type": "module",
   "bin": "dist/index.js",
@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --target node20 && cp skill.md ../app/public/skill.md",
-    "prepare": "npm run build",
+    "prepare": "yarn build",
     "dev": "tsx src/index.ts"
   },
   "dependencies": {
@@ -34,5 +34,6 @@
   },
   "engines": {
     "node": ">=20"
-  }
+  },
+  "packageManager": "yarn@4.12.0+sha512.f45ab632439a67f8bc759bf32ead036a1f413287b9042726b7cc4818b7b49e14e9423ba49b18f9e06ea4941c1ad062385b1d8760a8d5091a1a31e5f6219afca8"
 }
