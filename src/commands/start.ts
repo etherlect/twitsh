@@ -36,15 +36,16 @@ export async function startCommand(): Promise<void> {
     JSON.stringify(
       {
         status: "initialized",
-        message: "Wallet created. Send USDC on Base to the address below to use paid endpoints.",
+        message: "Wallet created. Default mode: x402 (USDC on Base). Run `npx twitsh mode mpp` to switch to MPP/Tempo.",
         address: wallet.address,
         walletFile: `${process.env.HOME ?? "~"}/.twitsh/wallet.json`,
-        network: "Base",
-        note: "No ETH needed for gas — USDC only.",
+        network: "Base (x402 default) / Tempo (mpp)",
+        note: "No gas needed on either chain — USDC only.",
         next: [
-          "Send USDC on Base to your address above",
+          "Send USDC on Base to your address above (x402 mode default)",
           "Run `twitsh balance` to confirm funds",
           "Run `twitsh endpoints` to see available routes",
+          "Run `twitsh mode mpp` to switch to MPP/Tempo mode",
         ],
       },
       null,

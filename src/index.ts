@@ -11,10 +11,25 @@ const cli = yargs(hideBin(process.argv))
     await startCommand()
   })
 
-  .command("balance", "Show wallet address and USDC balance on Base", () => {}, async () => {
+  .command("balance", "Show wallet address and USDC balance", () => {}, async () => {
     const { balanceCommand } = await import("./commands/balance.js")
     await balanceCommand()
   })
+
+  .command(
+    "mode [set]",
+    "Show or set payment mode: x402 (Base) or mpp (Tempo)",
+    (y) =>
+      y.positional("set", {
+        type: "string",
+        description: "Mode to switch to",
+        choices: ["x402", "mpp"],
+      }),
+    async (args) => {
+      const { modeCommand } = await import("./commands/mode.js")
+      await modeCommand(args.set as string | undefined)
+    },
+  )
 
   .command("endpoints", "List all available API endpoints with descriptions and prices", () => {}, async () => {
     const { endpointsCommand } = await import("./commands/endpoints.js")
@@ -23,7 +38,7 @@ const cli = yargs(hideBin(process.argv))
 
   .command(
     "fetch <url>",
-    "Fetch a twitsh endpoint with automatic x402 payment and credential injection",
+    "Fetch a twitsh endpoint with automatic payment and credential injection",
     (y) =>
       y
         .positional("url", {

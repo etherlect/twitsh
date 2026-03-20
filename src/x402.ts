@@ -19,7 +19,7 @@ const USDC_ABI = [
 export type PaymentInfo = {
   price: string
   txHash: string | null
-  network: "base"
+  network: "base" | "tempo"
 }
 
 export type FetchOptions = {

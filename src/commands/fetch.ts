@@ -1,6 +1,8 @@
 import { getWallet } from "../wallet.js"
 import { isCacheStale, refreshInBackground, loadEndpoints } from "../openapi.js"
 import { executeX402Fetch } from "../x402.js"
+import { executeMppFetch } from "../mpp.js"
+import { getMode } from "../config.js"
 import { loadCredentials, credentialsExist } from "../credentials.js"
 import type { Endpoint } from "../openapi.js"
 
@@ -143,9 +145,12 @@ export async function fetchCommand(args: FetchArgs): Promise<void> {
     }
   }
 
+  const mode = getMode()
   let result: Awaited<ReturnType<typeof executeX402Fetch>>
   try {
-    result = await executeX402Fetch(url, { method, body, headers }, wallet)
+    result = mode === "mpp"
+      ? await executeMppFetch(url, { method, body, headers }, wallet)
+      : await executeX402Fetch(url, { method, body, headers }, wallet)
   } catch (e) {
     console.error(
       JSON.stringify(
@@ -164,7 +169,8 @@ export async function fetchCommand(args: FetchArgs): Promise<void> {
 
   if (paymentInfo) {
     const txNote = paymentInfo.txHash ? ` (tx: ${paymentInfo.txHash})` : ""
-    console.error(`# Paid ${paymentInfo.price} on Base${txNote}`)
+    const networkLabel = paymentInfo.network === "tempo" ? "Tempo" : "Base"
+    console.error(`# Paid ${paymentInfo.price} on ${networkLabel}${txNote}`)
   }
 
   console.log(JSON.stringify(data, null, 2))

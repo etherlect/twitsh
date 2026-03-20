@@ -1,6 +1,6 @@
 # twitsh
 
-CLI tool for the [twit.sh](https://twit.sh) X/Twitter API — access Twitter/X data via x402 micropayments. Pay per request in USDC on Base — no API keys, no monthly subscriptions.
+CLI tool for the [twit.sh](https://twit.sh) X/Twitter API — access Twitter/X data via x402 (Base) or MPP (Tempo) micropayments. Pay per request in USDC — no API keys, no monthly subscriptions.
 
 All available endpoints are documented at **[twit.sh](https://twit.sh)**.
 
@@ -10,12 +10,20 @@ All available endpoints are documented at **[twit.sh](https://twit.sh)**.
 # 1. Create your wallet
 npx twitsh start
 
-# 2. Fund it — send USDC on Base to the printed address (no ETH needed for gas)
+# 2. Check your mode (default: x402 on Base)
+npx twitsh mode
 
-# 3. Check your balance
+# 3. Fund it — send USDC to the printed address on the chain for your mode
+#    x402: send USDC on Base
+#    mpp:  send USDC on Tempo (no gas needed on either chain)
+
+# 4. Check your balance
 npx twitsh balance
 
-# 4. Fetch data
+# 5. See available endpoints (URLs reflect current mode)
+npx twitsh endpoints
+
+# 6. Fetch data
 npx twitsh fetch "https://x402.twit.sh/users/by/username?username=elonmusk"
 ```
 
@@ -25,15 +33,32 @@ npx twitsh fetch "https://x402.twit.sh/users/by/username?username=elonmusk"
 |---|---|
 | `npx twitsh start` | Create wallet, print address for funding |
 | `npx twitsh balance` | Show wallet address and USDC balance |
+| `npx twitsh mode [x402\|mpp]` | Show or set payment mode |
 | `npx twitsh endpoints` | List all available endpoints with descriptions and prices |
 | `npx twitsh fetch <url>` | Fetch an endpoint — payment handled automatically |
 | `npx twitsh login` | Connect your X account (required for write endpoints) |
 | `npx twitsh logout` | Disconnect your X account |
 | `npx twitsh whoami` | Show which X account is connected |
 
+## Payment modes
+
+twitsh supports two payment protocols. Switch anytime with `npx twitsh mode`:
+
+| Mode | Chain | Base URL | Fund with |
+|---|---|---|---|
+| `x402` (default) | Base | `https://x402.twit.sh` | USDC on Base |
+| `mpp` | Tempo | `https://mpp.twit.sh` | USDC on Tempo |
+
+Both modes use the same wallet address. No ETH or gas tokens needed on either chain.
+
+```bash
+npx twitsh mode x402   # switch to x402 (Base)
+npx twitsh mode mpp    # switch to MPP (Tempo)
+```
+
 ## Fetching data
 
-Always run `npx twitsh endpoints` first to discover available routes and their descriptions.
+Always run `npx twitsh endpoints` first to discover available routes. The URLs in the output already reflect your current mode.
 
 ```bash
 # Get a user's profile and follower count
@@ -70,9 +95,12 @@ Credentials are encrypted with your wallet key and stored at `~/.twitsh/credenti
 
 ## Pricing
 
-Calls cost $0.0025–$0.01 USDC per request, paid on Base. No subscription, no rate limits beyond your balance.
+Calls cost $0.0025–$0.01 USDC per request. No subscription, no rate limits beyond your balance.
 
-Send USDC on Base to your wallet address (`npx twitsh balance` to see it). No ETH needed for gas.
+- **x402 mode**: pay on Base — send USDC on Base to your wallet address
+- **mpp mode**: pay on Tempo — send USDC on Tempo to your wallet address
+
+Run `npx twitsh balance` to see your address and current network.
 
 ## Storage
 
@@ -81,8 +109,10 @@ All data is stored in `~/.twitsh/`:
 | File | Contents |
 |---|---|
 | `wallet.json` | EVM wallet (keep the private key secret) |
+| `config.json` | Current payment mode (x402 or mpp) |
 | `credentials.json` | Encrypted X session credentials |
-| `openapi.json` | Cached endpoint list (refreshed hourly) |
+| `openapi-x402.json` | Cached endpoint list for x402 mode (refreshed hourly) |
+| `openapi-mpp.json` | Cached endpoint list for MPP mode (refreshed hourly) |
 
 ## For AI agents
 

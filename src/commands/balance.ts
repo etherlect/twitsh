@@ -1,28 +1,38 @@
 import { getWallet } from "../wallet.js"
 import { getUsdcBalance } from "../x402.js"
-import { LOW_BALANCE_THRESHOLD } from "../config.js"
+import { getUsdcBalanceTempo } from "../mpp.js"
+import { LOW_BALANCE_THRESHOLD, getMode } from "../config.js"
 
 export async function balanceCommand(): Promise<void> {
   const wallet = getWallet()
-  const balance = await getUsdcBalance(wallet.address)
+  const mode = getMode()
 
-  // Warn to stderr if low — does not interrupt current task
+  const balance = mode === "mpp"
+    ? await getUsdcBalanceTempo(wallet.address)
+    : await getUsdcBalance(wallet.address)
+
+  const network = mode === "mpp" ? "Tempo" : "Base"
+
   if (balance > 0 && balance < LOW_BALANCE_THRESHOLD) {
     console.error(
-      `⚠ Low balance: ${balance.toFixed(6)} USDC remaining at ${wallet.address} — send USDC on Base to refill soon`,
+      `⚠ Low balance: ${balance.toFixed(6)} USDC remaining at ${wallet.address} — send USDC on ${network} to refill soon`,
     )
   }
 
-  console.log(
-    JSON.stringify(
-      {
-        address: wallet.address,
-        balance: balance.toFixed(6),
-        currency: "USDC",
-        network: "Base",
-      },
-      null,
-      2,
-    ),
-  )
+  const output: Record<string, string> = {
+    address: wallet.address,
+    balance: balance.toFixed(6),
+    currency: "USDC",
+    network,
+  }
+
+  if (mode === "mpp") {
+    output.note = "No gas needed — server sponsors Tempo fees"
+  }
+
+  if (balance === 0) {
+    output.warning = `Send USDC on ${network} to ${wallet.address} to use paid endpoints`
+  }
+
+  console.log(JSON.stringify(output, null, 2))
 }

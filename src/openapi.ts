@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs"
-import { CONFIG_DIR, OPENAPI_FILE, OPENAPI_META, OPENAPI_URL, API_ORIGIN, CACHE_TTL_MS } from "./config.js"
+import { CONFIG_DIR, CACHE_TTL_MS, getOpenapiFile, getOpenapiMeta, getOpenapiUrl, getApiOrigin } from "./config.js"
 
 export type EndpointParam = {
   name: string
@@ -85,7 +85,7 @@ function normalizeEndpoints(spec: Record<string, unknown>): Endpoint[] {
         operationId: (op.operationId as string) ?? `${method}_${path.replace(/\//g, "_")}`,
         method: method.toUpperCase(),
         path,
-        url: `${API_ORIGIN}${path}`,
+        url: `${getApiOrigin()}${path}`,
         summary: (op.summary as string) ?? "",
         description: (op.description as string) ?? "",
         price,
@@ -99,9 +99,10 @@ function normalizeEndpoints(spec: Record<string, unknown>): Endpoint[] {
 }
 
 export function isCacheStale(): boolean {
-  if (!existsSync(OPENAPI_META)) return true
+  const metaFile = getOpenapiMeta()
+  if (!existsSync(metaFile)) return true
   try {
-    const meta = JSON.parse(readFileSync(OPENAPI_META, "utf-8")) as { fetchedAt: string }
+    const meta = JSON.parse(readFileSync(metaFile, "utf-8")) as { fetchedAt: string }
     const age = Date.now() - new Date(meta.fetchedAt).getTime()
     return age > CACHE_TTL_MS
   } catch {
@@ -111,24 +112,24 @@ export function isCacheStale(): boolean {
 
 export async function fetchAndCache(): Promise<Endpoint[]> {
   mkdirSync(CONFIG_DIR, { recursive: true })
-  const response = await fetch(OPENAPI_URL)
+  const response = await fetch(getOpenapiUrl())
   if (!response.ok) {
     throw new Error(`Failed to fetch OpenAPI spec: ${response.status} ${response.statusText}`)
   }
   const spec = (await response.json()) as Record<string, unknown>
   const endpoints = normalizeEndpoints(spec)
-  writeFileSync(OPENAPI_FILE, JSON.stringify(endpoints, null, 2), "utf-8")
-  writeFileSync(OPENAPI_META, JSON.stringify({ fetchedAt: new Date().toISOString() }, null, 2), "utf-8")
+  writeFileSync(getOpenapiFile(), JSON.stringify(endpoints, null, 2), "utf-8")
+  writeFileSync(getOpenapiMeta(), JSON.stringify({ fetchedAt: new Date().toISOString() }, null, 2), "utf-8")
   return endpoints
 }
 
 export function loadEndpointsFromCache(): Endpoint[] {
-  const raw = readFileSync(OPENAPI_FILE, "utf-8")
+  const raw = readFileSync(getOpenapiFile(), "utf-8")
   return JSON.parse(raw) as Endpoint[]
 }
 
 export async function loadEndpoints(): Promise<Endpoint[]> {
-  if (!isCacheStale() && existsSync(OPENAPI_FILE)) {
+  if (!isCacheStale() && existsSync(getOpenapiFile())) {
     return loadEndpointsFromCache()
   }
   return fetchAndCache()
